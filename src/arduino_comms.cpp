@@ -22,23 +22,17 @@ void ArduinoComms::sendEmptyMsg()
     std::string response = sendMsg("\r");
 }
 
-void ArduinoComms::readEncoderValues(int &val_1, int &val_2)
+void ArduinoComms::readEncoderValues(long &val_1, long &val_2, long &val_3, long &val_4)
 {
     std::string response = sendMsg("e\r");
-
-    std::string delimiter = " ";
-    size_t del_pos = response.find(delimiter);
-    std::string token_1 = response.substr(0, del_pos);
-    std::string token_2 = response.substr(del_pos + delimiter.length());
-
-    val_1 = std::atoi(token_1.c_str());
-    val_2 = std::atoi(token_2.c_str());
+    std::stringstream data = ss(response);
+    data >> val_1 >> val_2 >> val_3 >> val_4;
 }
 
-void ArduinoComms::setMotorValues(int val_1, int val_2)
+void ArduinoComms::setMotorValues(int val_1, int val_2, int val_3, int val_4)
 {
     std::stringstream ss;
-    ss << "m " << val_1 << " " << val_2 << "\r";
+    ss << "m " << val_1 << " " << val_2 << " " << val_3 << " " << val_4 << "\r";
     sendMsg(ss.str(), false);
 }
 
