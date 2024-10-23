@@ -25,7 +25,7 @@ void ArduinoComms::sendEmptyMsg()
 void ArduinoComms::readEncoderValues(long &val_1, long &val_2, long &val_3, long &val_4)
 {
     std::string response = sendMsg("e\r");
-    std::stringstream data = ss(response);
+    std::stringstream data(response);
     data >> val_1 >> val_2 >> val_3 >> val_4;
 }
 

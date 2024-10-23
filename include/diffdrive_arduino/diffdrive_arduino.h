@@ -15,13 +15,10 @@
 #include "wheel.h"
 #include "arduino_comms.h"
 
-
 using hardware_interface::return_type;
 
 class DiffDriveArduino : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
-
-
 public:
   DiffDriveArduino();
 
@@ -39,21 +36,19 @@ public:
 
   return_type write() override;
 
-
-
 private:
-
   Config cfg_;
   ArduinoComms arduino_;
 
-  Wheel l_wheel_;
-  Wheel r_wheel_;
+  // Update to include four wheels instead of two
+  Wheel fl_wheel_;  // Front left wheel
+  Wheel fr_wheel_;  // Front right wheel
+  Wheel bl_wheel_;  // Back left wheel
+  Wheel br_wheel_;  // Back right wheel
 
   rclcpp::Logger logger_;
 
   std::chrono::time_point<std::chrono::system_clock> time_;
-  
 };
-
 
 #endif // DIFFDRIVE_ARDUINO_REAL_ROBOT_H
