@@ -70,7 +70,7 @@ return_type FakeRobot::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
   status_ = hardware_interface::status::STARTED;
-
+  
   return return_type::OK;
 }
 

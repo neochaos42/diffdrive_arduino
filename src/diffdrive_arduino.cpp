@@ -83,8 +83,8 @@ return_type DiffDriveArduino::start()
   arduino_.sendEmptyMsg();
   // Set PID values for the motors (can be tuned as needed)
   arduino_.setPidValues(30, 20, 0, 100);
-
   status_ = hardware_interface::status::STARTED;
+  arduino_.resetEncoder();
   return return_type::OK;
 }
 
