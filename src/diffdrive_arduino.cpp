@@ -34,8 +34,9 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   br_wheel_.setup(cfg_.back_right_wheel_name, cfg_.enc_counts_per_rev);
 
   // Set up the Arduino
-  arduino_.setup(cfg_.device, cfg_.baud_rate, cfg_.timeout);  
-
+  arduino_.setup(cfg_.device, cfg_.baud_rate, cfg_.timeout);
+  RCLCPP_INFO(logger_, "Resetting Encoders");  
+  arduino_.resetEncoder();
   RCLCPP_INFO(logger_, "Finished Configuration");
 
   status_ = hardware_interface::status::CONFIGURED;
@@ -84,6 +85,23 @@ return_type DiffDriveArduino::start()
   // Set PID values for the motors (can be tuned as needed)
   arduino_.setPidValues(30, 20, 0, 100);
   status_ = hardware_interface::status::STARTED;
+  // Reset encoder counts to zero for all wheels
+  fl_wheel_.enc = 0;
+  fr_wheel_.enc = 0;
+  bl_wheel_.enc = 0;
+  br_wheel_.enc = 0;
+
+  // Also set positions and velocities to zero
+  fl_wheel_.pos = 0.0;
+  fr_wheel_.pos = 0.0;
+  bl_wheel_.pos = 0.0;
+  br_wheel_.pos = 0.0;
+
+  fl_wheel_.vel = 0.0;
+  fr_wheel_.vel = 0.0;
+  bl_wheel_.vel = 0.0;
+  br_wheel_.vel = 0.0;
+  
   arduino_.resetEncoder();
   return return_type::OK;
 }
@@ -92,11 +110,14 @@ return_type DiffDriveArduino::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
   status_ = hardware_interface::status::STOPPED;
+  arduino_.resetEncoder();
   return return_type::OK;
 }
 
 hardware_interface::return_type DiffDriveArduino::read()
 {
+  static bool first_read_after_start = true; // Add this flag
+
   // Calculate time delta
   auto new_time = std::chrono::system_clock::now();
   std::chrono::duration<double> diff = new_time - time_;
@@ -108,11 +129,20 @@ hardware_interface::return_type DiffDriveArduino::read()
     return return_type::ERROR;
   }
 
+  // Update wheel encoder values if not the first read
+  if (first_read_after_start) {
+    first_read_after_start = false;
+    // The zero values are already set, so we can skip further processing
+    return return_type::OK;
+    arduino_.resetEncoder();
+  }
   // Read encoder values for all four wheels
   long frontLeftEnc, frontRightEnc, backLeftEnc, backRightEnc;
   arduino_.readEncoderValues(frontLeftEnc, frontRightEnc, backLeftEnc, backRightEnc);
 
-  // Update wheel encoder values
+  
+
+  // Normal processing for subsequent reads
   fl_wheel_.enc = frontLeftEnc;
   fr_wheel_.enc = frontRightEnc;
   bl_wheel_.enc = backLeftEnc;
@@ -137,6 +167,7 @@ hardware_interface::return_type DiffDriveArduino::read()
 
   return return_type::OK;
 }
+
 
 hardware_interface::return_type DiffDriveArduino::write()
 {

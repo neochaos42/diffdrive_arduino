@@ -13,6 +13,7 @@ void ArduinoComms::setup(const std::string &serial_device, int32_t baud_rate, in
     serial_conn_.setTimeout(tt); // This should be inline except setTimeout takes a reference and so needs a variable
     serial_conn_.open();
     // serial_conn_.(serial_device, baud_rate, serial::Timeout::simpleTimeout(timeout_ms));
+    sendMsg("r\r");
 
 }
 
@@ -29,7 +30,7 @@ void ArduinoComms::readEncoderValues(long &val_1, long &val_2, long &val_3, long
     data >> val_1 >> val_2 >> val_3 >> val_4;
 }
 void ArduinoComms::resetEncoder(){
-    sendMsg("e\r");
+    sendMsg("r\r");
 }
 
 void ArduinoComms::setMotorValues(int val_1, int val_2, int val_3, int val_4)
