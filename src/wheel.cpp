@@ -13,6 +13,9 @@ void Wheel::setup(const std::string &wheel_name, int counts_per_rev)
 {
   name = wheel_name;
   rads_per_count = (2*M_PI)/counts_per_rev;
+  enc = 0L;
+  vel = 0;
+  pos = 0;
 }
 
 double Wheel::calcEncAngle()
