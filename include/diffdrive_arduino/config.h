@@ -17,6 +17,10 @@ struct Config
   int baud_rate = 57600;
   int timeout = 1000;
   int enc_counts_per_rev = 1920;
+  float k_p = 30;
+  float k_d = 20;
+  float k_i = 0;
+  float k_o = 100;
 };
 
 #endif // DIFFDRIVE_ARDUINO_CONFIG_H

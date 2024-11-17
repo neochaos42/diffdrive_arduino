@@ -26,7 +26,11 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
   cfg_.timeout = std::stoi(info_.hardware_parameters["timeout"]);
   cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
-
+  //Load PID values
+  cfg_.k_p = std::stof(info_.hardware_parameters["k_p"]);
+  cfg_.k_i = std::stof(info_.hardware_parameters["k_i"]);
+  cfg_.k_d = std::stof(info_.hardware_parameters["k_d"]);
+  cfg_.k_o = std::stof(info_.hardware_parameters["k_o"]);
   // Set up the wheels
   fl_wheel_.setup(cfg_.front_left_wheel_name, cfg_.enc_counts_per_rev);
   fr_wheel_.setup(cfg_.front_right_wheel_name, cfg_.enc_counts_per_rev);
@@ -82,9 +86,27 @@ return_type DiffDriveArduino::start()
 
   arduino_.sendEmptyMsg();
   // Set PID values for the motors (can be tuned as needed)
-  arduino_.setPidValues(30, 20, 0, 100);
+  arduino_.setPidValues(cfg_.k_p, cfg_.k_i, cfg_.k_d, cfg_.k_o);
   status_ = hardware_interface::status::STARTED;
+  // Reset encoder counts to zero for all wheels
+  fl_wheel_.enc = 0;
+  fr_wheel_.enc = 0;
+  bl_wheel_.enc = 0;
+  br_wheel_.enc = 0;
+
+  // Also set positions and velocities to zero
+  fl_wheel_.pos = 0.0;
+  fr_wheel_.pos = 0.0;
+  bl_wheel_.pos = 0.0;
+  br_wheel_.pos = 0.0;
+
+  fl_wheel_.vel = 0.0;
+  fr_wheel_.vel = 0.0;
+  bl_wheel_.vel = 0.0;
+  br_wheel_.vel = 0.0;
+  
   arduino_.resetEncoder();
+
   return return_type::OK;
 }
 
@@ -92,6 +114,7 @@ return_type DiffDriveArduino::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
   status_ = hardware_interface::status::STOPPED;
+  arduino_.resetEncoder();
   return return_type::OK;
 }
 

@@ -29,7 +29,7 @@ void ArduinoComms::readEncoderValues(long &val_1, long &val_2, long &val_3, long
     data >> val_1 >> val_2 >> val_3 >> val_4;
 }
 void ArduinoComms::resetEncoder(){
-    sendMsg("e\r");
+    sendMsg("r\r");
 }
 
 void ArduinoComms::setMotorValues(int val_1, int val_2, int val_3, int val_4)
