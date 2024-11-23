@@ -83,7 +83,7 @@ CallbackReturn FakeRobot::on_deactivate(const rclcpp_lifecycle::State & /*previo
   return CallbackReturn::SUCCESS;;
 }
 
-hardware_interface::return_type FakeRobot::read()
+hardware_interface::return_type FakeRobot::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
   // Calculate time delta
   auto new_time = std::chrono::system_clock::now();
@@ -101,7 +101,7 @@ hardware_interface::return_type FakeRobot::read()
   return return_type::OK;
 }
 
-hardware_interface::return_type FakeRobot::write()
+hardware_interface::return_type FakeRobot::write(const rclcpp::Time&, const rclcpp::Duration&)
 {
   // Set the wheel velocities to directly match what is commanded
   fl_wheel_.vel = fl_wheel_.cmd;

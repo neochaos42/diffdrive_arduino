@@ -92,7 +92,6 @@ CallbackReturn DiffDriveArduino::on_activate(const rclcpp_lifecycle::State & /*p
   arduino_.sendEmptyMsg();
   // Set PID values for the motors (can be tuned as needed)
   arduino_.setPidValues(cfg_.k_p, cfg_.k_i, cfg_.k_d, cfg_.k_o);
-  status_ = hardware_interface::status::STARTED;
   // Reset encoder counts to zero for all wheels
   fl_wheel_.enc = 0;
   fr_wheel_.enc = 0;
@@ -112,7 +111,7 @@ CallbackReturn DiffDriveArduino::on_activate(const rclcpp_lifecycle::State & /*p
   
   arduino_.resetEncoder();
 
-  return return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn DiffDriveArduino::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
@@ -122,7 +121,7 @@ CallbackReturn DiffDriveArduino::on_deactivate(const rclcpp_lifecycle::State & /
   return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type DiffDriveArduino::read()
+hardware_interface::return_type DiffDriveArduino::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
   static bool first_read_after_start = true; // Add this flag
 
@@ -141,8 +140,8 @@ hardware_interface::return_type DiffDriveArduino::read()
   if (first_read_after_start) {
     first_read_after_start = false;
     // The zero values are already set, so we can skip further processing
-    return return_type::OK;
     arduino_.resetEncoder();
+    return return_type::OK;
   }
   // Read encoder values for all four wheels
   long frontLeftEnc, frontRightEnc, backLeftEnc, backRightEnc;
@@ -177,7 +176,7 @@ hardware_interface::return_type DiffDriveArduino::read()
 }
 
 
-hardware_interface::return_type DiffDriveArduino::write()
+hardware_interface::return_type DiffDriveArduino::write(const rclcpp::Time&, const rclcpp::Duration&)
 {
   if (!arduino_.connected())
   {
