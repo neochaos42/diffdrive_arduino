@@ -42,9 +42,10 @@ private:
 
   Config cfg_;
 
-  Wheel l_wheel_;
-  Wheel r_wheel_;
-
+  Wheel fl_wheel_;
+  Wheel fr_wheel_;
+  Wheel bl_wheel_;
+  Wheel br_wheel_;
   rclcpp::Logger logger_;
 
   std::chrono::time_point<std::chrono::system_clock> time_;
