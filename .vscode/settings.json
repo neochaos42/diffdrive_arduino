@@ -10,6 +10,7 @@
         "string": "cpp",
         "string_view": "cpp",
         "iosfwd": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "cstring": "cpp"
     }
 }

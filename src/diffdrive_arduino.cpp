@@ -1,14 +1,18 @@
 #include "diffdrive_arduino/diffdrive_arduino.h"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
+
+
 DiffDriveArduino::DiffDriveArduino()
     : logger_(rclcpp::get_logger("DiffDriveArduino"))
 {}
 
-return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo & info)
+
+CallbackReturn DiffDriveArduino::on_init(const hardware_interface::HardwareInfo & info)
 {
-  if (configure_default(info) != return_type::OK) {
-    return return_type::ERROR;
+  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+  {
+    return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(logger_, "Configuring...");
@@ -43,8 +47,7 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   arduino_.resetEncoder();
   RCLCPP_INFO(logger_, "Finished Configuration");
 
-  status_ = hardware_interface::status::CONFIGURED;
-  return return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 std::vector<hardware_interface::StateInterface> DiffDriveArduino::export_state_interfaces()
@@ -81,14 +84,14 @@ std::vector<hardware_interface::CommandInterface> DiffDriveArduino::export_comma
   return command_interfaces;
 }
 
-return_type DiffDriveArduino::start()
+
+CallbackReturn DiffDriveArduino::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
   arduino_.sendEmptyMsg();
   // Set PID values for the motors (can be tuned as needed)
   arduino_.setPidValues(cfg_.k_p, cfg_.k_i, cfg_.k_d, cfg_.k_o);
-  status_ = hardware_interface::status::STARTED;
   // Reset encoder counts to zero for all wheels
   fl_wheel_.enc = 0;
   fr_wheel_.enc = 0;
@@ -108,18 +111,17 @@ return_type DiffDriveArduino::start()
   
   arduino_.resetEncoder();
 
-  return return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
-return_type DiffDriveArduino::stop()
+CallbackReturn DiffDriveArduino::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
-  status_ = hardware_interface::status::STOPPED;
   arduino_.resetEncoder();
-  return return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type DiffDriveArduino::read()
+hardware_interface::return_type DiffDriveArduino::read(const rclcpp::Time&, const rclcpp::Duration&)
 {
   static bool first_read_after_start = true; // Add this flag
 
@@ -138,8 +140,8 @@ hardware_interface::return_type DiffDriveArduino::read()
   if (first_read_after_start) {
     first_read_after_start = false;
     // The zero values are already set, so we can skip further processing
-    return return_type::OK;
     arduino_.resetEncoder();
+    return return_type::OK;
   }
   // Read encoder values for all four wheels
   long frontLeftEnc, frontRightEnc, backLeftEnc, backRightEnc;
@@ -174,7 +176,7 @@ hardware_interface::return_type DiffDriveArduino::read()
 }
 
 
-hardware_interface::return_type DiffDriveArduino::write()
+hardware_interface::return_type DiffDriveArduino::write(const rclcpp::Time&, const rclcpp::Duration&)
 {
   if (!arduino_.connected())
   {
